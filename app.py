@@ -10,8 +10,9 @@ def load_data():
 
 data = load_data()
 data = data.set_index('date')
-data = data.groupby('state').rolling(7).mean().diff(periods=-7).reset_index()
-picked_date = st.date_input("Date").strftime('%Y-%m-%d')
+data = data.groupby('state').rolling(7).mean().shift(periods=-7).diff(periods=-7).reset_index()
+data.drop(data.tail(1).index,inplace=True)
+picked_date = st.date_input("Date", value=data['date'].max()).strftime('%Y-%m-%d')
 data = data[data['date'] == picked_date]
 st.title(f'Weekly change in hospitalizations on {picked_date}')
 st.write(alt.Chart(data).mark_bar().encode(
