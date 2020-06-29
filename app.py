@@ -24,10 +24,10 @@ st.write(alt.Chart(diffdata[diffdata['date'] == picked_date]).mark_bar().encode(
     x=alt.X('hospitalized7daychange', axis=alt.Axis(orient='top'))
     )
 )
-st.title("Change in hospititalizations last 7 days")
-st.write(alt.Chart(diffdata[diffdata['date']>'2020/05/01']).mark_line().encode(
+st.title("Hospitalizations by state over time")
+st.write(alt.Chart(data[data['date']>'2020/03/22']).mark_line().encode(
     x='date',
-    y='hospitalized7daychange',
+    y='hospitalizedCurrently',
     color='state',
     strokeDash='state',
     tooltip='state'
@@ -35,10 +35,10 @@ st.write(alt.Chart(diffdata[diffdata['date']>'2020/05/01']).mark_line().encode(
     width=800,
     height=600))
 
-st.title("Hospitalizalizations by state over time")
-st.write(alt.Chart(data[data['date']>'2020/03/22']).mark_line().encode(
+st.title("Change in hospitalizations last 7 days")
+st.write(alt.Chart(diffdata[diffdata['date']>'2020/05/01']).mark_line().encode(
     x='date',
-    y='hospitalizedCurrently',
+    y='hospitalized7daychange',
     color='state',
     strokeDash='state',
     tooltip='state'
