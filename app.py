@@ -10,6 +10,7 @@ def load_data():
     return data
 
 data = load_data()
+data1 = data
 data = data.set_index('date')
 data = data.groupby('state').rolling(7).mean().shift(periods=-7)
 diffdata = data.diff(periods=-7).reset_index()
@@ -22,6 +23,8 @@ st.title(f'Weekly change in hospitalizations on {picked_date}')
 st.write(alt.Chart(diffdata[diffdata['date'] == picked_date]).mark_bar().encode(
     y=alt.Y('state', sort='-x'),
     x=alt.X('hospitalized7daychange', axis=alt.Axis(orient='top'))
+    ).properties(
+        width=800
     )
 )
 st.title("Hospitalizations by state over time")
