@@ -1,4 +1,5 @@
 import streamlit as st
+
 import pandas as pd
 import altair as alt
 
@@ -10,13 +11,37 @@ def load_data():
 
 data = load_data()
 data = data.set_index('date')
-data = data.groupby('state').rolling(7).mean().shift(periods=-7).diff(periods=-7).reset_index()
-data.drop(data.tail(1).index,inplace=True)
-picked_date = st.date_input("Date", value=data['date'].max()).strftime('%Y-%m-%d')
-data = data[data['date'] == picked_date]
+data = data.groupby('state').rolling(7).mean().shift(periods=-7)
+diffdata = data.diff(periods=-7).reset_index()
+data = data.reset_index()
+
+diffdata.drop(diffdata.tail(1).index,inplace=True)
+diffdata.rename(columns={"hospitalizedCurrently" : "hospitalized7daychange"},inplace=True)
+picked_date = st.date_input("Date", value=diffdata['date'].max()).strftime('%Y-%m-%d')
 st.title(f'Weekly change in hospitalizations on {picked_date}')
-st.write(alt.Chart(data).mark_bar().encode(
+st.write(alt.Chart(diffdata[diffdata['date'] == picked_date]).mark_bar().encode(
     y=alt.Y('state', sort='-x'),
-    x=alt.X('hospitalizedCurrently', axis=alt.Axis(orient='top'))
+    x=alt.X('hospitalized7daychange', axis=alt.Axis(orient='top'))
     )
 )
+st.title("Change in hospititalizations last 7 days")
+st.write(alt.Chart(diffdata[diffdata['date']>'2020/05/01']).mark_line().encode(
+    x='date',
+    y='hospitalized7daychange',
+    color='state',
+    strokeDash='state',
+    tooltip='state'
+).properties(
+    width=800,
+    height=600))
+
+st.title("Hospitalizalizations by state over time")
+st.write(alt.Chart(data[data['date']>'2020/03/22']).mark_line().encode(
+    x='date',
+    y='hospitalizedCurrently',
+    color='state',
+    strokeDash='state',
+    tooltip='state'
+).properties(
+    width=800,
+    height=600))
