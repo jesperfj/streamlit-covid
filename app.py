@@ -113,8 +113,8 @@ st.write(with_highlight('state',alt.Chart(diffdata[diffdata['date']>'2020/05/01'
 ))
 
 # Render chart
-st.title("Positive rate by state over time")
-st.write("Puerto Rico is excluded because of data quality")
+st.title("Positivity rate")
+st.write("Puerto Rico is excluded")
 st.write(with_highlight('state',alt.Chart(data[(data['date']>'2020/05/01') & (data['state']!='PR')]).mark_line().encode(
     x='date',
     y='positiveRate',
@@ -127,7 +127,7 @@ st.write(with_highlight('state',alt.Chart(data[(data['date']>'2020/05/01') & (da
 ))
 
 data_by_electionresult = data[(data['electionResult']!='None') & (data['date'] > '2020/04/01')].groupby(['electionResult','date']).sum()['hospitalizedCurrently'].reset_index()
-st.title("Total hospitalizations in red and blue states")
+st.title("Hospitalizations in red and blue states")
 st.write("Based on 2016 presidential election results")
 st.write(alt.Chart(data_by_electionresult).mark_area().encode(
     x="date:T",
