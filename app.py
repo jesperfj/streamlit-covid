@@ -60,7 +60,7 @@ diffdata.rename(
     },inplace=True)
 
 # Magic streamlit function that renders a date picker and assigns the picked value to picked_date
-picked_date = st.sidebar.date_input("Snapshot date (only affects first chart)", value=diffdata['date'].max()).strftime('%Y-%m-%d')
+picked_date = st.sidebar.date_input("Snapshot date (only affects some charts)", value=diffdata['date'].max()).strftime('%Y-%m-%d')
 
 #all_states = population[population['STATE']!=0]['ABBREV'].reset_index(drop=True)
 #state_selections = st.sidebar.multiselect("State", all_states)
@@ -85,9 +85,23 @@ st.write(alt.Chart(diffdata[diffdata['date'] == picked_date]).mark_bar().encode(
     )
 )
 
+st.title('Hospitalizations per 100k now')
+st.write(f'Date: {picked_date}')
+# The reason why picked_date was converted to string above is otherwise the data
+# selection would not work in this line below.
+st.write(alt.Chart(data[data['date'] == picked_date]).mark_bar().encode(
+    y=alt.Y('state', sort='-x'),
+    x=alt.X('hospitalizedCurrentlyPer100k', axis=alt.Axis(orient='top')),
+    color=alt.Color("electionResult:N",legend=None,scale=alt.Scale(range=['blue', 'grey','red'])),
+    tooltip=[alt.Tooltip("hospitalizedCurrentlyPer100k:Q", title="hospitalized per 100k", format=',.0d')]
+    ).properties(
+        width=800
+    )
+)
+
 
 # Render chart
-st.title("Hospitalizations per 100k")
+st.title("Hospitalizations per 100k trend")
 
 st.write(with_highlight('state',alt.Chart(data[data['date']>'2020/03/22']).mark_line().encode(
     x='date',
