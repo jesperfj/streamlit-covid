@@ -151,3 +151,16 @@ st.write(alt.Chart(data_by_electionresult).mark_area().encode(
     width=800,
     height=600)
 )
+
+
+st.write("Below is the same data but not stacked")
+
+st.write(alt.Chart(data_by_electionresult).mark_line().encode(
+    x="date:T",
+    y="hospitalizedCurrently:Q",
+    color=alt.Color("electionResult:N",legend=None,scale=alt.Scale(range=['blue', 'red'])),
+    tooltip=['electionResult:N', alt.Tooltip('hospitalizedCurrently',title='value',format=',.0d')]
+).properties(
+    width=800,
+    height=600)
+)
