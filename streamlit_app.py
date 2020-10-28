@@ -129,9 +129,9 @@ st.write(with_highlight('state',alt.Chart(diffdata[diffdata['date']>'2020/05/01'
 # Render chart
 st.title("Positivity rate")
 st.write("Puerto Rico is excluded")
-st.write(with_highlight('state',alt.Chart(data[(data['date']>'2020/05/01') & (data['state']!='PR')]).mark_line().encode(
+st.write(with_highlight('state',alt.Chart(data[(data['date']>'2020/05/01') & (data['state']!='PR')]).mark_line(clip=True).encode(
     x='date',
-    y='positiveRate',
+    y=alt.Y('positiveRate',scale=alt.Scale(domain=(0,0.20),clamp=True)),
     color=alt.Color('state', legend=None),
     strokeDash=alt.StrokeDash('state', legend=None),
     tooltip=['state',alt.Tooltip('positiveRate:Q',format=',.0%')]
