@@ -60,3 +60,8 @@ def population():
     data = pd.read_csv("data/nst-est2019-alldata.csv")
     data['ABBREV'] = data['NAME'].map(state_abbreviation())
     return data
+
+def county_population():
+    data = pd.read_csv("data/county_population.csv", thousands=',')
+    #data['population'].apply(pd.to_numeric)
+    return data

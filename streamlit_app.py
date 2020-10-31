@@ -12,6 +12,11 @@ def load_data():
     data['positiveRate'] = data['positive']/data['totalTestResults'] 
     return data
 
+
+@st.cache(ttl=60*60*24)
+def ca_hospital_data():
+    return pd.read_csv("https://data.ca.gov/dataset/529ac907-6ba1-4cb7-9aae-8966fc96aeef/resource/42d33765-20fd-44b8-a978-b083b7542225/download/hospitals_by_county.csv")
+    
 @st.cache
 def load_pop():
     return pop.population()
@@ -28,8 +33,6 @@ def with_highlight(field, base):
         size=alt.condition(~highlight, alt.value(1), alt.value(3))
     )
     return points+lines
-
-
 
 data = load_data()
 population = load_pop()
@@ -93,7 +96,7 @@ st.write(alt.Chart(data[data['date'] == picked_date]).mark_bar().encode(
     y=alt.Y('state', sort='-x'),
     x=alt.X('hospitalizedCurrentlyPer100k', axis=alt.Axis(orient='top')),
     color=alt.Color("electionResult:N",legend=None,scale=alt.Scale(range=['blue', 'grey','red'])),
-    tooltip=[alt.Tooltip("hospitalizedCurrentlyPer100k:Q", title="hospitalized per 100k", format=',.0d')]
+    tooltip=[alt.Tooltip("hospitalizedCurrentlyPer100k:Q", title="hospitalized per 100k", format=',.2f')]
     ).properties(
         width=800
     )
@@ -163,4 +166,26 @@ st.write(alt.Chart(data_by_electionresult).mark_line().encode(
 ).properties(
     width=800,
     height=600)
+)
+
+ca_data = ca_hospital_data()
+
+# The picked date may be ahead of available data
+use_date = min(ca_data['todays_date'].max(),picked_date)
+
+county_pop = pop.county_population()
+county_pop = county_pop[county_pop['state']=='California']
+ca_data = ca_data.merge(county_pop, left_on='county', right_on='county', suffixes=(False,False))
+ca_data = ca_data[ca_data['todays_date']==use_date]
+ca_data['hospitalized_per_100k'] = ca_data['hospitalized_covid_confirmed_patients']*100000/ca_data['population']
+
+st.title("Hospitalizations per 100k in California counties")
+st.write(f"Date: {use_date}")
+st.write(alt.Chart(ca_data).mark_bar().encode(
+    y=alt.Y('county', sort='-x'),
+    x=alt.X('hospitalized_per_100k', axis=alt.Axis(orient='top')),
+    tooltip=[alt.Tooltip("hospitalized_per_100k:Q", title="hospitalized per 100k", format=',.2f')]
+    ).properties(
+        width=800
+    )
 )
