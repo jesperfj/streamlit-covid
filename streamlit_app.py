@@ -92,7 +92,8 @@ picked_date = st.sidebar.date_input("Snapshot date (only affects some charts)", 
 #state_selections = st.sidebar.multiselect("State", all_states)
 
 st.markdown("""
-All COVID data below comes from [covidtracking.com](https://covidtracking.com/api). Daily values have been smoothened to a 7 day rolling average. 
+US State level COVID data below comes from [covidtracking.com](https://covidtracking.com/api). Daily values have been smoothened to a 7 day rolling average. 
+Country level COVID data comes from [John Hopkins University CSSE](https://github.com/CSSEGISandData) (no smoothening).
 Population data is from [census.gov](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html).
 Election data is from [New York Times](https://www.nytimes.com/elections/2016/results/president). Country population data is from Google searches
 which quoted US Census and Eurostat as sources.
