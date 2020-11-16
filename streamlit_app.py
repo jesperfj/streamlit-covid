@@ -4,6 +4,7 @@ import pandas as pd
 import altair as alt
 import population as pop
 import election
+import psutil
 
 @st.cache(ttl=60*60*24)
 def load_data():
@@ -17,6 +18,11 @@ def load_data():
 def ca_hospital_data():
     return pd.read_csv("https://data.ca.gov/dataset/529ac907-6ba1-4cb7-9aae-8966fc96aeef/resource/42d33765-20fd-44b8-a978-b083b7542225/download/hospitals_by_county.csv")
     
+@st.cache(ttl=60*60*24)
+def load_world_deaths():
+    return pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+
+
 @st.cache
 def load_pop():
     return pop.population()
@@ -33,6 +39,23 @@ def with_highlight(field, base):
         size=alt.condition(~highlight, alt.value(1), alt.value(3))
     )
     return points+lines
+
+def permillion(x):
+    cpop = {
+        'US': 328, # US Census
+        'United Kingdom': 66.7, # Eurostat
+        'France': 67.0, # Eurostat
+        'Germany': 83.0, # Eurostat
+        'Spain': 46.9, # Eurostat
+        'Portugal': 10.3, # Eurostat
+        'Denmark': 5.81, # Eurostat
+        'Sweden': 10.2, # Eurostat
+        'Japan': 127 # Worldbank
+    }
+    x['value']=x['value']/cpop[x['country']]
+    return x
+
+
 
 data = load_data()
 population = load_pop()
@@ -71,7 +94,8 @@ picked_date = st.sidebar.date_input("Snapshot date (only affects some charts)", 
 st.markdown("""
 All COVID data below comes from [covidtracking.com](https://covidtracking.com/api). Daily values have been smoothened to a 7 day rolling average. 
 Population data is from [census.gov](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html).
-Election data is from [New York Times](https://www.nytimes.com/elections/2016/results/president).
+Election data is from [New York Times](https://www.nytimes.com/elections/2016/results/president). Country population data is from Google searches
+which quoted US Census and Eurostat as sources.
 """)
 
 # 7 day change bar chart
@@ -189,3 +213,37 @@ st.write(alt.Chart(ca_data).mark_bar().encode(
         width=800
     )
 )
+
+wd = load_world_deaths()
+wd = wd[wd['Country/Region'].isin(['Denmark','US','United Kingdom','Sweden','Japan','France', 'Germany']) & wd['Province/State'].isna()]
+wd.drop(columns=['Province/State','Lat','Long'],inplace=True)
+wd = pd.melt(wd, id_vars='Country/Region')
+wd['variable'] = pd.to_datetime(wd['variable'])
+wd.rename(columns = { 'variable': 'date', 'Country/Region': 'country'},inplace=True)
+wd = wd.apply(permillion, axis = 1)
+wd.set_index(['date', 'country'], inplace=True)
+wddiff = wd.groupby(level=1).diff(periods=7).reset_index()
+wd = wd.reset_index()
+
+st.title("Weekly deaths per million in select countries")
+st.write(with_highlight('country',alt.Chart(wddiff).mark_line().encode(
+    x="date:T",
+    y="value:Q",
+    color=alt.Color("country:N"),
+    tooltip=['country:N', alt.Tooltip('value',title='value',format=',.0d')]
+).properties(
+    width=800,
+    height=600)
+))
+
+st.title("Total deaths per million in select countries")
+st.write(with_highlight('country',alt.Chart(wd).mark_line().encode(
+    x="date:T",
+    y="value:Q",
+    color=alt.Color("country:N"),
+    tooltip=['country:N', alt.Tooltip('value',title='value',format=',.0d')]
+).properties(
+    width=800,
+    height=600)
+))
+
