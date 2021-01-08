@@ -1,4 +1,5 @@
 
+# This data was manually entered from New York Times
 
 er = {
         "Alabama": "Red",
@@ -55,5 +56,5 @@ er = {
         "Puerto Rico": "None"
     }
 
-def election_result(state):
+def result_by_state(state):
     return er[state]

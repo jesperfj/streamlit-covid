@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 def state_abbreviation():
     return {
@@ -56,12 +57,13 @@ def state_abbreviation():
         "Puerto Rico": "PR"
     }
 
-def population():
+def state_population():
     data = pd.read_csv("data/nst-est2019-alldata.csv")
     data['ABBREV'] = data['NAME'].map(state_abbreviation())
     return data
 
 def county_population():
     data = pd.read_csv("data/county_population.csv", thousands=',')
+    data['state'] = data['state'].map(state_abbreviation())
     #data['population'].apply(pd.to_numeric)
     return data
