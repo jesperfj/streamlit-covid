@@ -29,7 +29,7 @@ def data():
 
     return wd
 
-@st.cache
+@st.cache(ttl=60*60*24)
 def diff(data,days):
     return data.set_index(['date', 'country']).groupby(level=1).diff(periods=days).reset_index()
 
