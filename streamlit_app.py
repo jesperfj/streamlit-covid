@@ -96,18 +96,6 @@ st.write(with_highlight('state',alt.Chart(filtered_usdata_diff).mark_line().enco
     height=600)
 ))
 
-# Render chart
-st.subheader("Positivity rate")
-st.write(with_highlight('state',alt.Chart(filtered_usdata).mark_line(clip=True).encode(
-    x='date',
-    y='positiveRate',
-    color=alt.Color('state'),
-    tooltip=['state','date:T',alt.Tooltip('positiveRate:Q',format=',.1%')]
-).properties(
-    width=800,
-    height=600)
-))
-
 ca_data = ca_hospital_data()
 
 # The picked date may be ahead of available data
