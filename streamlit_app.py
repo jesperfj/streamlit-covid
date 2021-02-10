@@ -53,7 +53,6 @@ st.write(alt.Chart(usdata_diff[usdata_diff['date'] == picked_date]).mark_bar().e
 )
 
 st.subheader('Total')
-st.markdown("Red bars are republican states, blue bars are democratic states per 2016 presidential election")
 # The reason why picked_date was converted to string above is otherwise the data
 # selection would not work in this line below.
 st.write(alt.Chart(usdata[usdata['date'] == picked_date]).mark_bar().encode(
